@@ -1,0 +1,12 @@
+# متحتاجش git داخل الكونتينر
+.git
+
+# ملفات npm/yarn logs
+npm-debug.log
+yarn-error.log
+
+# env
+.env
+
+# ملفات مؤقتة
+.DS_Store

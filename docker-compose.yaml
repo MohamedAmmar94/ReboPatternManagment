@@ -1,0 +1,63 @@
+
+services:
+  daftra_task_app:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    container_name: daftra_task_app
+    image: daftra_task_app_image
+    volumes:
+      - .:/var/www/html
+      - ./vendor:/var/www/html/vendor
+      # - ./node_modules:/var/www/html/node_modules
+      - ./storage:/var/www/html/storage
+    depends_on:
+      - daftra_task_db
+      - daftra_task_redis
+  daftra_task_nginx:
+    image: nginx:latest
+    container_name: daftra_task_nginx
+    ports:
+      - "8000:80"
+    volumes:
+      - .:/var/www/html
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - daftra_task_app
+
+  daftra_task_db:
+    image: mysql:8.0
+    container_name: daftra_task_db
+    restart: always
+    environment:
+      MYSQL_DATABASE: daftra_task
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3312:3306"
+    volumes:
+      - daftra_task_db_data:/var/lib/mysql
+
+  daftra_task_phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: daftra_task_phpmyadmin
+    restart: always
+    ports:
+      - "8080:80"
+    environment:
+      PMA_HOST: daftra_task_db
+      MYSQL_ROOT_PASSWORD: root
+    volumes:
+      - /d/work/Docker/phpmyadmin/php.ini:/usr/local/etc/php/conf.d/uploads.ini:ro
+    depends_on:
+      - daftra_task_db
+
+  daftra_task_redis:
+    image: redis:alpine
+    container_name: daftra_task_redis
+    volumes:
+      - daftra_task_redis_data:/data
+    restart: always
+
+volumes:
+ daftra_task_db_data:
+ daftra_task_redis_data:
